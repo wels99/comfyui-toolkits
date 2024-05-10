@@ -1,4 +1,5 @@
 {
   "tools": "工具包",
-  "loadimage": "加载本地图片"
+  "loadimage": "加载本地图片",
+  "randseed": "随机数"
 }
