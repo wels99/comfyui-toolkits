@@ -1,3 +1,6 @@
+import os, random, time
+
+
 class LoadImageFromLocalPath:
     def __init__(self):
         pass
@@ -5,7 +8,9 @@ class LoadImageFromLocalPath:
     @classmethod
     def INPUT_TYPES(self):
         return {
-            "required": {},
+            "required": {
+                "path": ("STRING", {"default": ""}),
+            },
         }
 
     RETURN_TYPES = (
@@ -23,8 +28,14 @@ class LoadImageFromLocalPath:
     CATEGORY = "tools"
     FUNCTION = "load_image"
 
-    def load_image(self):
+    def load_image(self, path: str, **kwargs):
+        if not os.path.isfile(path):
+            raise FileNotFoundError(f'File "{path}" not found.')
         return (
             100,
             200,
         )
+
+    @classmethod
+    def IS_CHANGED(self, **kwargs):
+        return time.time()

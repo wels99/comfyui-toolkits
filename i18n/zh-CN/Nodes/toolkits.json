@@ -1,0 +1,10 @@
+{
+  "loadimage": {
+    "title": "从本地加载图像",
+
+    "outputs": {
+      "Width": "宽",
+      "Height": "高"
+    }
+  }
+}
