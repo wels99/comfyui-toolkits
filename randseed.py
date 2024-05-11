@@ -12,47 +12,49 @@ class RandSeed:
     def INPUT_TYPES(self):
         return {
             "required": {
-                "value": (
+                "种子": (
                     "INT",
                     {"default": 0, "min": 0, "max": RandSeed.MAX},
                 ),
-                "control_after_generate": (
+                "动作": (
                     [
-                        "fixed",
-                        "increment",
-                        "decrement",
-                        "randomize",
+                        "固定",
+                        "增加",
+                        "减小",
+                        "随机",
                     ],
-                    {"default": "randomize"},
+                    {"default": "随机"},
                 ),
-                "last_value": ("STRING", {"default": ""}),
+                "上次值": ("STRING", {"default": ""}),
             },
         }
 
     RETURN_TYPES = ("INT",)
-    RETURN_NAMES = ("Value",)
+    RETURN_NAMES = ("种子",)
     CATEGORY = "tools"
     FUNCTION = "rand"
     OUTPUT_NODE = True
 
-    def rand(self, value: int, control_after_generate: str, last_value: str):
+    def rand(self, **kwargs):
+        value = kwargs["种子"]
+        act = kwargs["动作"]
         last_value = str(value)
 
-        if control_after_generate == "fixed":
+        if act == "固定":
             nvalue = value
-        elif control_after_generate == "increment":
+        elif act == "增加":
             nvalue = value + 1
-        elif control_after_generate == "decrement":
+        elif act == "减小":
             nvalue = value - 1
-        elif control_after_generate == "randomize":
+        elif act == "随机":
             nvalue = random.randint(0, RandSeed.MAX)
 
         nvalue = max(0, min(nvalue, RandSeed.MAX))
 
         return {
             "ui": {
-                "value": (nvalue,),
-                "last_value": (last_value,),
+                "种子": (nvalue,),
+                "上次值": (last_value,),
             },
             "result": (value,),
         }

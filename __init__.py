@@ -8,7 +8,7 @@ NODE_CLASS_MAPPINGS = {
 
 NODE_DISPLAY_NAME_MAPPINGS = {
     "loadimage": "Load Image",
-    "randseed": "Random Seed",
+    "randseed": "随机数",
 }
 
 WEB_DIRECTORY = "./web"
