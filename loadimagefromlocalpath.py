@@ -37,7 +37,7 @@ class LoadImageFromLocalPath:
 
     RETURN_NAMES = (
         "图像",
-        "蒙版",
+        "遮罩",
         "Width",
         "Height",
     )
