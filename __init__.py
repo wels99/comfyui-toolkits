@@ -7,7 +7,7 @@ NODE_CLASS_MAPPINGS = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "loadimage": "Load Image",
+    "loadimage": "加载本地图片",
     "randseed": "随机数",
 }
 
