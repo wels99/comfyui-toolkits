@@ -1,26 +1,43 @@
-import os, random, time
+import os, time, random
+from PIL import Image, ImageOps, ImageSequence
+from PIL.PngImagePlugin import PngInfo
+import torch
+import numpy as np
+import hashlib
+import folder_paths
+import shutil
 
 
 class LoadImageFromLocalPath:
     def __init__(self):
+        self.output_dir = folder_paths.get_temp_directory()
+        self.type = "temp"
+        self.prefix = f"LIFLP_temp_{time.time()}_" + "".join(
+            random.choice("abcdefghijklmnopqrstupvxyz") for x in range(10)
+        )
         pass
 
     @classmethod
     def INPUT_TYPES(self):
         return {
             "required": {
-                "path": ("STRING", {"default": ""}),
+                "图片路径": (
+                    "STRING",
+                    {"default": r"C:\Users\djf\Pictures\IMG_8763.png"},
+                ),
             },
         }
 
     RETURN_TYPES = (
-        # "IMAGE",
+        "IMAGE",
+        "MASK",
         "INT",
         "INT",
     )
 
     RETURN_NAMES = (
-        # "IMAGE",
+        "图像",
+        "蒙板",
         "Width",
         "Height",
     )
@@ -28,14 +45,68 @@ class LoadImageFromLocalPath:
     CATEGORY = "tools"
     FUNCTION = "load_image"
 
-    def load_image(self, path: str, **kwargs):
-        if not os.path.isfile(path):
-            raise FileNotFoundError(f'File "{path}" not found.')
-        return (
-            100,
-            200,
-        )
+    def load_image(self, **kwargs):
+        self.validate_inputs(**kwargs)
+
+        imgpath = kwargs["图片路径"]
+        ext = imgpath.split(".")[-1]
+        tmpfile = self.prefix + "." + ext
+        tmpfilepath = os.path.join(self.output_dir, tmpfile)
+        shutil.copyfile(imgpath, tmpfilepath)
+
+        img = Image.open(imgpath)
+        output_images = []
+        output_masks = []
+        for i in ImageSequence.Iterator(img):
+            i = ImageOps.exif_transpose(i)
+            if i.mode == "I":
+                i = i.point(lambda i: i * (1 / 255))
+            image = i.convert("RGB")
+            image = np.array(image).astype(np.float32) / 255.0
+            image = torch.from_numpy(image)[None,]
+            if "A" in i.getbands():
+                mask = np.array(i.getchannel("A")).astype(np.float32) / 255.0
+                mask = 1.0 - torch.from_numpy(mask)
+            else:
+                mask = torch.zeros((64, 64), dtype=torch.float32, device="cpu")
+            output_images.append(image)
+            output_masks.append(mask.unsqueeze(0))
+
+        if len(output_images) > 1:
+            output_image = torch.cat(output_images, dim=0)
+            output_mask = torch.cat(output_masks, dim=0)
+        else:
+            output_image = output_images[0]
+            output_mask = output_masks[0]
+        return {
+            "ui": {
+                "images": (
+                    {
+                        "filename": tmpfile,
+                        "subfolder": "",
+                        "type": self.type,
+                    },
+                )
+            },
+            "result": (
+                output_image,
+                output_mask,
+                img.width,
+                img.height,
+            ),
+        }
 
     @classmethod
     def IS_CHANGED(self, **kwargs):
-        return time.time()
+        self.validate_inputs(**kwargs)
+
+        m = hashlib.sha256()
+        with open(kwargs["图片路径"], "rb") as f:
+            m.update(f.read())
+        return m.digest().hex()
+
+    def validate_inputs(self, **kwargs):
+        image_path = kwargs["图片路径"]
+        if not os.path.isfile(image_path):
+            raise FileNotFoundError(f'File "{image_path}" not found.')
+        return True
