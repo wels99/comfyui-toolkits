@@ -23,7 +23,7 @@ class LoadImageFromLocalPath:
             "required": {
                 "图片路径": (
                     "STRING",
-                    {"default": r"C:\Users\djf\Pictures\IMG_8763.png"},
+                    {"default": ""},
                 ),
             },
         }
