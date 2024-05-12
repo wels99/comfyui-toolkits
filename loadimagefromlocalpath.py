@@ -48,7 +48,7 @@ class LoadImageFromLocalPath:
     def load_image(self, **kwargs):
         self.validate_inputs(**kwargs)
 
-        imgpath = kwargs["图片路径"]
+        imgpath = self.strip(kwargs["图片路径"])
         ext = imgpath.split(".")[-1]
         tmpfile = self.prefix + "." + ext
         tmpfilepath = os.path.join(self.output_dir, tmpfile)
@@ -100,13 +100,17 @@ class LoadImageFromLocalPath:
     def IS_CHANGED(self, **kwargs):
         self.validate_inputs(**kwargs)
 
+        imgpath = self.strip(kwargs["图片路径"])
         m = hashlib.sha256()
-        with open(kwargs["图片路径"], "rb") as f:
+        with open(imgpath, "rb") as f:
             m.update(f.read())
         return m.digest().hex()
 
     def validate_inputs(self, **kwargs):
-        image_path = kwargs["图片路径"]
+        image_path = self.strip(kwargs["图片路径"])
         if not os.path.isfile(image_path):
             raise FileNotFoundError(f'File "{image_path}" not found.')
         return True
+
+    def strip(self, ipath: str) -> str:
+        return ipath.strip('"').strip("'")
