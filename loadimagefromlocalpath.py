@@ -26,6 +26,11 @@ class LoadImageFromLocalPath:
                     {"default": ""},
                 ),
             },
+            "hidden": {
+                "unique_id": "UNIQUE_ID",
+                "prompt": "PROMPT",
+                "extra_pnginfo": "EXTRA_PNGINFO",
+            },
         }
 
     RETURN_TYPES = (
@@ -78,6 +83,8 @@ class LoadImageFromLocalPath:
         else:
             output_image = output_images[0]
             output_mask = output_masks[0]
+
+        self.clearpath(**kwargs)
         return {
             "ui": {
                 "images": (
@@ -114,3 +121,16 @@ class LoadImageFromLocalPath:
 
     def strip(self, ipath: str) -> str:
         return ipath.strip('"').strip("'")
+
+    def clearpath(self, **kwargs):
+        node_id = int(kwargs["unique_id"])
+        nodelist = kwargs["extra_pnginfo"]["workflow"]["nodes"]
+
+        filename = os.path.basename(self.strip(kwargs["图片路径"]))
+
+        kwargs["prompt"][kwargs["unique_id"]]["inputs"]["图片路径"] = filename
+
+        for node in nodelist:
+            if node["id"] == node_id:
+                node["widgets_values"][0] = filename
+                break
