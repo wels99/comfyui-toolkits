@@ -5,7 +5,6 @@ class RandSeed:
     MAX = 0x1F_FFFF_FFFF_FFFF
 
     def __init__(self):
-        self.MAX = 0x1F_FFFF_FFFF_FFFF
         pass
 
     @classmethod
@@ -14,7 +13,7 @@ class RandSeed:
             "required": {
                 "种子": (
                     "INT",
-                    {"default": 0, "min": 0, "max": RandSeed.MAX},
+                    {"default": 0, "min": 0, "max": self.MAX},
                 ),
                 "动作": (
                     [
@@ -47,9 +46,9 @@ class RandSeed:
         elif act == "减小":
             nvalue = value - 1
         elif act == "随机":
-            nvalue = random.randint(0, RandSeed.MAX)
+            nvalue = random.randint(0, self.MAX)
 
-        nvalue = max(0, min(nvalue, RandSeed.MAX))
+        nvalue = max(0, min(nvalue, self.MAX))
 
         return {
             "ui": {

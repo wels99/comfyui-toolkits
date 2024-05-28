@@ -1,6 +1,7 @@
 from .randseed import *
 from .loadimagefromlocalpath import *
 from .fixedn import *
+from .resizeimage import *
 
 NODE_CLASS_MAPPINGS = {
     "loadimage": LoadImageFromLocalPath,
@@ -9,6 +10,7 @@ NODE_CLASS_MAPPINGS = {
     "fixedints": FixedInts,
     "fixedfloat": FixedFloat,
     "fixedfloats": FixedFloats,
+    "resizeimage": ResizeImage,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS = {
@@ -18,6 +20,7 @@ NODE_DISPLAY_NAME_MAPPINGS = {
     "fixedints": "整数对",
     "fixedfloat": "浮点数",
     "fixedfloats": "浮点数对",
+    "resizeimage": "按边缩放图像",
 }
 
 WEB_DIRECTORY = "./web"

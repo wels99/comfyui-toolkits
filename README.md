@@ -10,6 +10,12 @@
 
 ![alt text](img/loadimage.png)
 
+## resizeimage
+
+按边缩放图像。按最大边长缩放图像。
+
+![alt text](img/resizeimage.png)
+
 ## randseed
 
 输出随机数
