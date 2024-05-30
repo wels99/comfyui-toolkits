@@ -27,11 +27,18 @@ class ResizeImage:
         return {
             "required": {
                 "图像": ("IMAGE",),
-                "最大边长": (
+                "边长": (
                     "INT",
                     {"default": 1024, "min": 10, "max": self.max, "step": 1},
                 ),
                 "缩放方法": (self.upscale_methods,),
+                "缩放基准边": (
+                    [
+                        "长边",
+                        "短边",
+                    ],
+                    {"default": "长边"},
+                ),
             },
             "hidden": {
                 "unique_id": "UNIQUE_ID",
@@ -57,16 +64,17 @@ class ResizeImage:
 
     def resizeimg(self, **kwargs):
         s = kwargs["图像"].movedim(-1, 1)
-        l = kwargs["最大边长"]
+        l = kwargs["边长"]
         upscale_method = kwargs["缩放方法"]
+        scale_base = kwargs["缩放基准边"]
 
         oldwidth = s.shape[3]
         oldheight = s.shape[2]
 
-        if oldwidth > oldheight:
-            scale = l / oldwidth
+        if scale_base == "长边":
+            scale = l / max(oldwidth, oldheight)
         else:
-            scale = l / oldheight
+            scale = l / min(oldwidth, oldheight)
 
         width = int(oldwidth * scale)
         height = int(oldheight * scale)
