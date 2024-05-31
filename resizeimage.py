@@ -40,6 +40,9 @@ class ResizeImage:
                     {"default": "长边"},
                 ),
             },
+            "optional": {
+                "遮罩": ("MASK",),
+            },
             "hidden": {
                 "unique_id": "UNIQUE_ID",
                 "prompt": "PROMPT",
@@ -49,12 +52,14 @@ class ResizeImage:
 
     RETURN_TYPES = (
         "IMAGE",
+        "MASK",
         "INT",
         "INT",
     )
 
     RETURN_NAMES = (
         "图像",
+        "遮罩",
         "Width",
         "Height",
     )
@@ -67,6 +72,10 @@ class ResizeImage:
         l = kwargs["边长"]
         upscale_method = kwargs["缩放方法"]
         scale_base = kwargs["缩放基准边"]
+        if "遮罩" in kwargs:
+            mask = kwargs["遮罩"]
+        else:
+            mask = None
 
         oldwidth = s.shape[3]
         oldheight = s.shape[2]
@@ -81,6 +90,20 @@ class ResizeImage:
 
         s = comfy.utils.common_upscale(s, width, height, upscale_method, False)
         s = s.movedim(1, -1)
+
+        maskimg = []
+        if mask is not None:
+            maskimg = (
+                mask.reshape((-1, 1, mask.shape[-2], mask.shape[-1]))
+                .movedim(1, -1)
+                .expand(-1, -1, -1, 3)
+            )
+            maskimg = maskimg.movedim(-1, 1)
+            maskimg = comfy.utils.common_upscale(
+                maskimg, width, height, upscale_method, False
+            )
+            maskimg = maskimg.movedim(1, -1)
+            maskimg = maskimg[:, :, :, 0]
 
         results = list()
         for batch_number, img in enumerate(s):
@@ -106,6 +129,7 @@ class ResizeImage:
             "ui": {"images": results},
             "result": (
                 s,
+                maskimg,
                 width,
                 height,
             ),
